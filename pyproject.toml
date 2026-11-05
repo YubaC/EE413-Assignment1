@@ -1,0 +1,22 @@
+[project]
+name = "ee413-assignment1"
+version = "0.1.0"
+description = "EE413 isolated Python environment"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "numpy",
+    "ur-rtde==1.6.5",
+]
+
+[tool.uv]
+package = false
+
+[tool.poe.tasks]
+format = "ruff format ."
+lint = "ruff check ."
+
+[dependency-groups]
+dev = [
+    "poethepoet>=0.49.0",
+    "ruff>=0.17.3",
+]

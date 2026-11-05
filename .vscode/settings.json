@@ -1,0 +1,14 @@
+{
+    // Folder icon mapping only.
+    // We use "resources" rather than "assets" following the GNU project's
+    // terminology recommendation. "Contents" would be semantically inaccurate
+    // for these non-code resources.
+    // See: https://www.gnu.org/philosophy/words-to-avoid.en.html#Assets
+    "vsicons.associations.folders": [
+        {
+            "icon": "asset",
+            "extensions": ["resource", "resources"],
+            "format": "svg"
+        }
+    ]
+}
