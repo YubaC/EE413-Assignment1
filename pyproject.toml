@@ -14,6 +14,20 @@ package = false
 [tool.poe.tasks]
 format = "ruff format ."
 lint = "ruff check ."
+sim-up = "docker compose -f compose.sim.yaml up -d ursim"
+sim-down = "docker compose -f compose.sim.yaml down"
+
+# Task to run the main.py script with the robot host set to
+# the actual robot's IP address
+[tool.poe.tasks.robot]
+cmd = "uv run python src/main.py"
+env = { ROBOT_HOST = "192.168.77.2" }
+
+# Task to run the main.py script with the robot host set to
+# the simulation's IP address
+[tool.poe.tasks.sim]
+cmd = "uv run python src/main.py"
+env = { ROBOT_HOST = "127.0.0.1" }
 
 [dependency-groups]
 dev = [
