@@ -1,0 +1,20 @@
+name: ee413-simulation
+services:
+  ursim:
+    image: universalrobots/ursim_e-series@sha256:c80dfb4ec6b554db6d20ba45fb90d0ec056d0303bd3c7a7040a4e8b503eaaf87
+    platform: linux/amd64
+    environment:
+      ROBOT_MODEL: UR5
+    ports:
+      - "127.0.0.1:6080:6080"
+      - "127.0.0.1:29999:29999"
+      - "127.0.0.1:30001:30001"
+      - "127.0.0.1:30002:30002"
+      - "127.0.0.1:30003:30003"
+      - "127.0.0.1:30004:30004"
+    volumes:
+      - ursim-programs:/ursim/programs
+    stdin_open: true
+    tty: true
+volumes:
+  ursim-programs:
