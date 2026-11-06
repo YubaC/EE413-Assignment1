@@ -73,12 +73,20 @@ Before committing, format and lint the Python code with Ruff.
 ```sh
 uv run poe format
 uv run poe lint
+uv run poe test
 ```
+
+### Tests
+
+Place each test file in a `__TESTS__/` subdirectory of the directory containing the code it tests. For example, tests for `src/main.py` go in `src/__TESTS__/main_test.py`.
+
+Name test files `*_test.py` so pytest can discover them. Run the test suite from the repository root.
 
 ## Command Reference
 
 - `uv run poe format` - Format the Python code with Ruff.
 - `uv run poe lint` - Lint the Python code with Ruff.
+- `uv run poe test` - Run the unit tests with pytest.
 - `uv run poe robot` - Run the main program against the physical robot.
 - `uv run poe sim` - Run the main program against URSim.
 - `uv run poe sim-up` - Start URSim in the background.
