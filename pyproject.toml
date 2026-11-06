@@ -2,7 +2,7 @@
 name = "ee413-assignment1"
 version = "0.1.0"
 description = "EE413 isolated Python environment"
-requires-python = ">=3.13,<3.14"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "numpy",
     "ur-rtde==1.6.5",
