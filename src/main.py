@@ -17,7 +17,7 @@ import subprocess
 ROBOT_HOST = os.getenv("ROBOT_HOST")
 
 if __name__ == "__main__":
-    if ROBOT_HOST is None:
+    if not ROBOT_HOST:
         raise ValueError("ROBOT_HOST environment variable is not set.")
 
     # Try to connect to the robot using the specified IP address
