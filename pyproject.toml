@@ -2,7 +2,7 @@
 name = "ee413-assignment1"
 version = "0.1.0"
 description = "EE413 isolated Python environment"
-requires-python = ">=3.13,<3.14"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "numpy",
     "ur-rtde==1.6.5",
@@ -11,12 +11,31 @@ dependencies = [
 [tool.uv]
 package = false
 
+[tool.pytest.ini_options]
+testpaths = ["src", "scripts"]
+
 [tool.poe.tasks]
 format = "ruff format ."
 lint = "ruff check ."
+test = "uv run --locked python -m pytest"
+sim-up = "docker compose -f compose.sim.yaml up -d ursim"
+sim-down = "docker compose -f compose.sim.yaml down"
+
+# Task to run the main.py script with the robot host set to
+# the actual robot's IP address
+[tool.poe.tasks.robot]
+cmd = "uv run python src/main.py"
+env = { ROBOT_HOST = "192.168.77.2" }
+
+# Task to run the main.py script with the robot host set to
+# the simulation's IP address
+[tool.poe.tasks.sim]
+cmd = "uv run python src/main.py"
+env = { ROBOT_HOST = "127.0.0.1" }
 
 [dependency-groups]
 dev = [
     "poethepoet>=0.49.0",
+    "pytest>=9.2.0",
     "ruff>=0.17.3",
 ]
