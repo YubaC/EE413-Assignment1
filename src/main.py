@@ -12,21 +12,9 @@ Raises:
 """
 
 import os
-import subprocess
 
 ROBOT_HOST = os.getenv("ROBOT_HOST")
 
 if __name__ == "__main__":
     if not ROBOT_HOST:
         raise ValueError("ROBOT_HOST environment variable is not set.")
-
-    # Try to connect to the robot using the specified IP address
-    try:
-        subprocess.run(["uv", "run", "scripts/test-connection.py"], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to connect to the robot at {ROBOT_HOST}. Error: {e}")
-        raise SystemExit(1)
-    else:
-        print(f"Successfully connected to the robot at {ROBOT_HOST}.")
-
-    print(f"Configured robot host: {ROBOT_HOST}")
