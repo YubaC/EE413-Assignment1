@@ -21,8 +21,10 @@ if TYPE_CHECKING:
     from .robot import _Robot
 
 
-GRIPPER_ACTUATION_TIME = 1.0
-GRIPPER_PROGRAM_TIMEOUT = 15.0
+GRIPPER_ACTUATION_TIME = 1.0  # seconds
+GRIPPER_PROGRAM_TIMEOUT = 15.0  # seconds
+RTDE_RESTORE_TIMEOUT = 5.0  # seconds
+CHECK_STEP_TIME = 0.01  # seconds
 
 
 class Gripper:
@@ -57,12 +59,42 @@ class Gripper:
         if not self._robot.connected:
             raise RuntimeError("Robot is not connected. Cannot run gripper program.")
 
+        # ? The Dashboard gripper program and the RTDE control script share the
+        # ? same program execution environment of the robot. There is
+        # ? competition for execution resources between the two, necessitating
+        # ? mutually exclusive execution and explicit handover of control.
+
         # The caller must finish all arm motion before switching programs.
         self._robot.control.stopScript()
         self._wait_until_stopped()
-        self._robot.dashboard.loadURP(program_name)
-        self._robot.dashboard.play()
 
+        # Start the gripper program and wait for it to finish.
+        # If it fails, try to restore control.
+        try:
+            self._robot.dashboard.loadURP(program_name)
+            self._robot.dashboard.play()
+
+        except Exception:
+            try:
+                if self._robot.dashboard.programState().strip().startswith("STOPPED"):
+                    self._restore_control()
+
+            except Exception:  # noqa: BLE001, S110
+                # Preserve the original failure if recovery also fails.
+                # Ignore the new exception and re-raise the original one.
+                # TODO: Log recovery failures without replacing the original exception.
+                pass
+
+            # If we reach here, it means the gripper program failed and we couldn't restore control.
+            # So we raise the original exception to indicate the failure.
+            raise
+
+        # Wait for the gripper actuation time to allow the gripper to complete
+        # its motion. If the program is still running after this time, the _wait_until_stopped()
+        # method will handle the timeout and raise an exception.
+
+        # TODO: Remove this sleep and rely solely on _wait_until_stopped() for timing,
+        # TODO: but currently the gripper program does not report its state correctly.
         time.sleep(GRIPPER_ACTUATION_TIME)
 
         self._wait_until_stopped()
@@ -84,11 +116,14 @@ class Gripper:
             state = self._robot.dashboard.programState().strip()
             if state.startswith("STOPPED"):
                 break
+
             if not state.startswith("PLAYING"):
                 raise RuntimeError(f"Unexpected gripper program state: {state}")
+
             if time.monotonic() >= deadline:
                 raise TimeoutError("Gripper program still running; RTDE not restored.")
-            time.sleep(0.01)
+
+            time.sleep(CHECK_STEP_TIME)
 
     def _restore_control(self) -> None:
         """
@@ -98,7 +133,7 @@ class Gripper:
             RuntimeError: If the dashboard program is not stopped or the RTDE
                 control script cannot be uploaded.
             TimeoutError: If the RTDE control script does not start within
-                five seconds.
+                the timeout period.
         """
 
         control = self._robot.control
@@ -111,11 +146,13 @@ class Gripper:
         if not control.reuploadScript():
             raise RuntimeError("Failed to upload RTDE control script.")
 
-        deadline = time.monotonic() + 5.0
+        deadline = time.monotonic() + RTDE_RESTORE_TIMEOUT
+
         while not control.isProgramRunning():
             if time.monotonic() >= deadline:
                 raise TimeoutError("RTDE control script did not start.")
-            time.sleep(0.1)
+
+            time.sleep(CHECK_STEP_TIME)
 
     def open(self) -> None:
         """

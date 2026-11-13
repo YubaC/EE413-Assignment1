@@ -56,19 +56,20 @@ class _Robot:
             self.dashboard = DashboardClient(ROBOT_HOST)
             self.dashboard.connect(5000)
 
+            # Check if all interfaces are connected
+            all_connected = (
+                self.control.isConnected()
+                and self.receive.isConnected()
+                and self.io.isConnected()
+                and self.dashboard.isConnected()
+            )
+
+            if not all_connected:
+                raise RuntimeError("Failed to connect to one or more robot interfaces.")
+
         except Exception as e:
             self.disconnect()
             raise RuntimeError("Failed to connect to robot") from e
-
-        all_connected = (
-            self.control.isConnected()
-            and self.receive.isConnected()
-            and self.io.isConnected()
-            and self.dashboard.isConnected()
-        )
-
-        if not all_connected:
-            raise RuntimeError("Failed to connect to one or more robot interfaces.")
 
         self.gripper = Gripper(self)
         self.connected = True
@@ -78,14 +79,10 @@ class _Robot:
         Disconnect from the UR5e robot and clean up the control, receive, IO,
         and dashboard interfaces.
         """
-        if self.control:
-            self.control.disconnect()
-        if self.receive:
-            self.receive.disconnect()
-        if self.io:
-            self.io.disconnect()
-        if self.dashboard:
-            self.dashboard.disconnect()
+        for name in ("control", "receive", "io", "dashboard"):
+            interface = getattr(self, name, None)
+            if interface is not None:
+                interface.disconnect()
 
         self.connected = False
 
