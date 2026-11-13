@@ -47,8 +47,10 @@ class _Conveyor:
         if not ROBOT.connected:
             raise RuntimeError("Robot is not connected. Cannot start conveyor.")
 
-        assert ROBOT.io is not None
-        ROBOT.io.setStandardDigitalOut(self.id, True)
+        # ? ROBOT.io.setStandardDigitalOut returns `True` if the output was set
+        # ? successfully, `False` otherwise.
+        if not ROBOT.io.setStandardDigitalOut(self.id, True):
+            raise RuntimeError(f"Failed to start conveyor {self.id}.")
 
     def stop(self) -> None:
         """
@@ -61,8 +63,10 @@ class _Conveyor:
         if not ROBOT.connected:
             raise RuntimeError("Robot is not connected. Cannot stop conveyor.")
 
-        assert ROBOT.io is not None
-        ROBOT.io.setStandardDigitalOut(self.id, False)
+        # ? Same as above, returns `True` if the output was set successfully,
+        # ? `False` otherwise.
+        if not ROBOT.io.setStandardDigitalOut(self.id, False):
+            raise RuntimeError(f"Failed to stop conveyor {self.id}.")
 
 
 CONVEYOR_X = _Conveyor(0)  # Conveyor in X direction
