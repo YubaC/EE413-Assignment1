@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "aaron-bond.better-comments",
+        "cschlosser.doxdocgen",
+        "editorconfig.editorconfig",
+        "oderwat.indent-rainbow",
+        "usernamehw.errorlens"
+    ]
+}
