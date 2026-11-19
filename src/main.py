@@ -10,11 +10,14 @@ Usage:
 Raises:
     ValueError: If the `ROBOT_HOST` environment variable is not set.
 """
+from visionTesting import scanner          #qr code and gesture reading
 
 import os
 import subprocess
 
 ROBOT_HOST = os.getenv("ROBOT_HOST")
+
+task = scanner.main()  #variable for what pallet to be ran based on qr code & user input
 
 if __name__ == "__main__":
     if not ROBOT_HOST:

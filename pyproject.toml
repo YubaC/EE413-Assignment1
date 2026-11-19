@@ -6,6 +6,8 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "numpy",
     "ur-rtde==1.6.5",
+    "mediapipe",
+    "opencv-python",
 ]
 
 [tool.uv]
